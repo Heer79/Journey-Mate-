@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}JourneyMate - Travel Beyond Limits{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3.0">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top transition-navbar" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3" href="{% url 'home' %}">JourneyMate</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto fw-semibold">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'packages_list' %}">Packages</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'contact' %}">Contact Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'feedback' %}">Feedback</a></li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link btn btn-outline-light ms-2 rounded-pill px-4" href="{% url 'logout' %}">Logout</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link btn btn-primary text-white ms-2 rounded-pill px-4 premium-btn" href="{% url 'login' %}">Login / Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% if messages %}
+        <div class="container mt-5 pt-5">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-5 bg-dark text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold">JourneyMate</h5>
+                    <p class="text-white-50">Explore the world with zero hassle. Book your buses, hotels, and full itineraries seamlessly.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-decoration-none text-white-50 filter-link">About Us</a></li>
+                        <li><a href="{% url 'packages_list' %}" class="text-decoration-none text-white-50 filter-link">Holiday Packages</a></li>
+                        <li><a href="{% url 'contact' %}" class="text-decoration-none text-white-50 filter-link">Contact</a></li>
+                        <li><a href="{% url 'feedback' %}" class="text-decoration-none text-white-50 filter-link">Feedback</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold">Follow Us</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-white fs-4"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-white fs-4"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white fs-4"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center text-white-50 mt-4 border-top pt-3">
+                <small>&copy; 2026 JourneyMate Travel Agency. All Rights Reserved.</small>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom script for navbar scroll effect -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var navbar = document.getElementById('mainNav');
+            var isHome = document.querySelector('.hero-section') !== null;
+            
+            function updateNavbar() {
+                if (!isHome || window.scrollY > 50) {
+                    navbar.classList.add('bg-dark', 'shadow-sm');
+                    navbar.classList.remove('bg-transparent');
+                } else {
+                    navbar.classList.add('bg-transparent');
+                    navbar.classList.remove('bg-dark', 'shadow-sm');
+                }
+            }
+
+            // Initial check
+            updateNavbar();
+            
+            // On scroll check
+            window.addEventListener('scroll', updateNavbar);
+        });
+    </script>
+</body>
+</html>

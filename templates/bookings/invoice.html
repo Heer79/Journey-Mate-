@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Invoice #{{ booking.id }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: Helvetica, sans-serif;
+            font-size: 14px;
+            color: #333;
+        }
+        h1 {
+            color: #2563eb;
+            text-align: center;
+        }
+        .header {
+            margin-bottom: 30px;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 10px;
+        }
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .details-table th, .details-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .details-table th {
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .total-row {
+            font-weight: bold;
+            background-color: #f1f5f9;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>JourneyMate Travel Agency</h1>
+        <p>Email: bookings@journeymate.com | Phone: +1 234 567 890</p>
+    </div>
+    
+    <h2>INVOICE #{{ booking.id }}</h2>
+    <p><strong>Date:</strong> {{ booking.booking_date|date:"M d, Y" }}</p>
+    <p><strong>Customer:</strong> {{ booking.user.get_full_name|default:booking.user.username }}</p>
+    <p><strong>Email:</strong> {{ booking.user.email }}</p>
+    
+    <table class="details-table">
+        <thead>
+            <tr>
+                <th>Item Description</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Package Name</td>
+                <td>{{ booking.package.name }}</td>
+            </tr>
+            <tr>
+                <td>Travel Date</td>
+                <td>{{ booking.travel_date|date:"M d, Y" }}</td>
+            </tr>
+            <tr>
+                <td>Duration</td>
+                <td>{{ booking.package.day_night_duration }}</td>
+            </tr>
+            <tr>
+                <td>Bus Type</td>
+                <td>{{ booking.package.get_bus_type_display }}</td>
+            </tr>
+            <tr>
+                <td>Passengers</td>
+                <td>{{ booking.no_of_passengers }} Person(s)</td>
+            </tr>
+            <tr>
+                <td>Payment Method</td>
+                <td>{{ booking.get_payment_method_display }}</td>
+            </tr>
+            <tr class="total-row">
+                <td>Total Amount Paid/Due</td>
+                <td>₹{{ booking.total_amount }}</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        <p>Thank you for choosing JourneyMate for your travel experience. We wish you a wonderful trip!</p>
+    </div>
+</body>
+</html>

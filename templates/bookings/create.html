@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Book {{ package.name }} - JourneyMate{% endblock %}
+
+{% block content %}
+<div class="page-header text-center mb-5">
+    <div class="container text-white">
+        <h2 class="display-5 fw-bold"><i class="fa-solid fa-ticket ms-2 me-3"></i>Complete Your Booking</h2>
+        <p class="lead">You are booking: <strong class="text-warning">{{ package.name }}</strong></p>
+    </div>
+</div>
+
+<div class="container mb-5 pb-5">
+    <div class="row justify-content-center">
+        <!-- Booking Form -->
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    
+                    <form method="POST" action="{% url 'booking_create' package.id %}">
+                        {% csrf_token %}
+                        
+                        <h4 class="fw-bold mb-4 border-bottom pb-2">Travel Details</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted">TRAVEL DATE</label>
+                                <input type="date" name="travel_date" id="travelDate" class="form-control form-control-lg" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted">NUMBER OF PASSENGERS</label>
+                                <input type="number" name="no_of_passengers" class="form-control form-control-lg" min="1" max="{{ package.total_seats_available }}" value="1" required id="passengerCount">
+                                <div class="form-text mt-2"><i class="fa-solid fa-info-circle text-primary"></i> Available seats: <strong id="seatsAvailableText">{{ package.total_seats_available }}</strong></div>
+                            </div>
+                        </div>
+
+                        <h4 class="fw-bold mt-5 mb-4 border-bottom pb-2">Payment Details</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted">PAYMENT METHOD</label>
+                                <input type="text" class="form-control form-control-lg" value="Secure Online Payment" readonly disabled>
+                                <input type="hidden" name="payment_method" value="ONLINE">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted">OFFER CODE (OPTIONAL)</label>
+                                <input type="text" name="offer_code" class="form-control form-control-lg" placeholder="e.g. SUMMER20">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-5 p-4 rounded-4" style="background-color: var(--bg-light); border: 1px dashed #cbd5e1;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-semibold text-secondary">Package Price:</span>
+                                <span class="text-secondary">₹{{ package.price }} per person</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold fs-5 text-dark">Estimated Total:</span>
+                                <span class="fw-bold fs-3 text-primary" id="estimatedTotal">₹{{ package.price }}</span>
+                            </div>
+                            <p class="text-muted small mt-2 mb-0"><i class="fa-solid fa-tag"></i> Offers will be applied upon confirmation.</p>
+                        </div>
+
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn premium-btn btn-lg text-white mx-auto w-100 fw-bold shadow-lg">Confirm & Proceed to Book</button>
+                            <a href="{% url 'package_detail' package.id %}" class="btn btn-link text-muted mt-3 text-decoration-none">Cancel and return to package</a>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('travelDate');
+        const passengerInput = document.getElementById('passengerCount');
+        const estTotalDisplay = document.getElementById('estimatedTotal');
+        const seatsDisplay = document.getElementById('seatsAvailableText');
+        const pricePerPerson = parseFloat('{{ package.price }}');
+        const packageId = {{ package.id }};
+        const availabilityUrl = `/bookings/check-availability/${packageId}/`;
+
+        // Set min/max on date field
+        if (dateInput) {
+            const today = new Date();
+            const maxDate = new Date();
+            maxDate.setFullYear(today.getFullYear() + 2);
+            const fmt = (d) => d.toISOString().split('T')[0];
+            dateInput.min = fmt(today);
+            dateInput.max = fmt(maxDate);
+
+            dateInput.addEventListener('change', function() {
+                if (this.value < this.min) this.value = this.min;
+                if (this.value > this.max) this.value = this.max;
+
+                // Fetch seats for this specific date
+                if (this.value) {
+                    seatsDisplay.textContent = 'Checking...';
+                    fetch(`${availabilityUrl}?date=${this.value}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            const seats = data.available_seats;
+                            seatsDisplay.textContent = seats;
+                            passengerInput.max = seats;
+                            // Clamp current passenger value
+                            if (parseInt(passengerInput.value) > seats) {
+                                passengerInput.value = seats > 0 ? seats : 1;
+                                let total = parseInt(passengerInput.value) * pricePerPerson;
+                                estTotalDisplay.textContent = '₹' + total.toFixed(2);
+                            }
+                        })
+                        .catch(() => {
+                            seatsDisplay.textContent = '{{ package.total_seats_available }}';
+                        });
+                }
+            });
+        }
+
+        passengerInput.addEventListener('input', function() {
+            let count = parseInt(this.value) || 1;
+            let total = count * pricePerPerson;
+            estTotalDisplay.textContent = '₹' + total.toFixed(2);
+        });
+    });
+</script>
+
+<style>
+    .card input, .card select {
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s;
+    }
+    .card input:focus, .card select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
+    }
+</style>
+{% endblock %}

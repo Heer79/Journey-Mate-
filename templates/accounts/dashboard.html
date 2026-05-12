@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - JourneyMate{% endblock %}
+
+{% block content %}
+<div class="page-header text-center mb-5">
+    <div class="container">
+        <h1 class="display-5 fw-bold"><i class="fa-solid fa-user-circle me-3"></i>My Dashboard</h1>
+        <p class="lead">Welcome back, {{ user.username }}! Manage your bookings and profile.</p>
+    </div>
+</div>
+
+<div class="container mb-5 pb-5">
+    <div class="row g-4">
+        <!-- Sidebar Profile -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-4 text-center">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 fw-bold" style="width: 80px; height: 80px; font-size: 2.5rem;">
+                        {{ user.username|make_list|first|upper }}
+                    </div>
+                    <h4 class="fw-bold">{{ user.first_name }} {{ user.last_name }}</h4>
+                    <p class="text-muted mb-1">{{ user.email }}</p>
+                    <p class="text-muted small mb-4"><i class="fa-solid fa-phone me-1"></i> {{ user.phone_number|default:"N/A" }}</p>
+                    <hr>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'logout' %}" class="btn border border-2 border-danger text-danger rounded-pill px-4 fw-semibold auth-btn hover-danger">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookings List -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">My Bookings</h5>
+                    <span class="badge bg-primary rounded-pill">{{ bookings.count }} Total</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light text-muted small">
+                                    <tr>
+                                        <th class="ps-4">Package</th>
+                                        <th>Travel Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th class="pe-4 text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in bookings %}
+                                    <tr>
+                                        <td class="ps-4 py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <h6 class="mb-0 fw-bold text-dark">{{ booking.package.name }}</h6>
+                                                    <span class="text-muted small">{{ booking.no_of_passengers }} Passenger(s)</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="fw-medium">{{ booking.travel_date|date:"M d, Y" }}</span></td>
+                                        <td class="fw-bold text-primary">₹{{ booking.total_amount }}</td>
+                                        <td>
+                                            {% if booking.payment_status == 'PAID' %}
+                                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2"><i class="fa-solid fa-check-double me-1"></i> Paid & Confirmed</span>
+                                            {% elif booking.approval_status == 'APPROVED' %}
+                                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2"><i class="fa-solid fa-check me-1"></i> Approved (Please Pay)</span>
+                                            {% elif booking.approval_status == 'REJECTED' %}
+                                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-2"><i class="fa-solid fa-xmark me-1"></i> Rejected</span>
+                                            {% else %}
+                                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-50 rounded-pill px-3 py-2"><i class="fa-solid fa-clock me-1"></i> Under Review</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="pe-4 text-end">
+                                            {% if booking.payment_status == 'PAID' %}
+                                                <a href="{% url 'invoice_download' booking.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold"><i class="fa-solid fa-download me-1"></i> Invoice</a>
+                                            {% elif booking.approval_status == 'APPROVED' and booking.payment_status == 'PENDING' %}
+                                                <a href="{% url 'payment_initiate' booking.id %}" class="btn btn-sm btn-success rounded-pill px-3 fw-semibold text-white shadow-sm"><i class="fa-solid fa-credit-card me-1"></i> Pay Now</a>
+                                            {% else %}
+                                                <button class="btn btn-sm btn-light rounded-pill px-3 text-muted" disabled>Processing...</button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="p-5 text-center">
+                            <div class="text-muted mb-4 opacity-50" style="font-size: 3.5rem;"><i class="fa-solid fa-box-open"></i></div>
+                            <h5 class="fw-bold text-dark mb-2">No bookings yet</h5>
+                            <p class="text-muted small mb-4">You haven't made any travel bookings with us yet. Your adventures will appear here!</p>
+                            <a href="{% url 'packages_list' %}" class="btn premium-btn text-white px-5 rounded-pill">Explore Packages</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-danger:hover {
+        background-color: #dc3545;
+        color: white !important;
+    }
+</style>
+{% endblock %}

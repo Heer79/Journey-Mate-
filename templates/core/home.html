@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero-section text-center position-relative">
+    <div class="container position-relative z-1">
+        <h1 class="hero-title text-white">Discover Your Next Adventure</h1>
+        <p class="hero-subtitle text-white-50 mt-3">Book premium buses, luxury hotels, and guided experiences with JourneyMate</p>
+        
+
+    </div>
+</section>
+
+<!-- Featured Packages -->
+<section class="py-5" style="background-color: var(--bg-light);">
+    <div class="container py-5 my-4">
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-8 text-center">
+                <h2 class="display-5 fw-bold text-dark section-title">Top Destinations</h2>
+                <div class="mx-auto mt-3 mb-4" style="width: 60px; height: 4px; background: var(--accent-color); border-radius: 2px;"></div>
+                <p class="lead text-muted">Handpicked premium travel packages tailored just for you</p>
+            </div>
+        </div>
+        
+        <div class="row g-4 justify-content-center">
+            {% for package in featured_packages %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card package-card h-100 border-0 rounded-4">
+                    <div class="card-img-wrapper position-relative">
+                        <div class="price-badge shadow-sm">₹{{ package.price }}</div>
+                        {% if package.image %}
+                        <img src="{{ package.image.url }}" class="img-fluid w-100" alt="{{ package.name }}">
+                        {% else %}
+                        <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=800" class="img-fluid w-100" alt="Default Package">
+                        {% endif %}
+                    </div>
+                    <div class="card-body p-4 p-xl-5 d-flex flex-column bg-white">
+                        <h4 class="card-title fw-bold text-dark mb-3">{{ package.name }}</h4>
+                        <div class="d-flex flex-wrap gap-3 mb-4">
+                            <span class="badge bg-primary bg-opacity-10 text-primary py-2 px-3 rounded-pill"><i class="fa-solid fa-clock me-1"></i> {{ package.day_night_duration }}</span>
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary py-2 px-3 rounded-pill"><i class="fa-solid fa-bus me-1"></i> {{ package.get_bus_type_display }}</span>
+                        </div>
+                        <p class="card-text text-muted mb-4 pb-2" style="font-size: 1.05rem; line-height: 1.6;">{{ package.description|truncatewords:18 }}</p>
+                        <div class="mt-auto d-grid">
+                            <a href="{% url 'package_detail' package.id %}" class="btn premium-btn btn-lg text-white fw-semibold rounded-3 py-3 shadow-sm">View Details & Book</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="p-5 bg-white shadow-sm rounded-4 mx-auto" style="max-width: 600px;">
+                    <i class="fa-solid fa-box-open text-muted fw-light mb-4" style="font-size: 4rem;"></i>
+                    <h3 class="fw-bold text-dark">No packages available</h3>
+                    <p class="text-muted">We're updating our top destinations. Please check back later!</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5 pt-3">
+            <a href="{% url 'packages_list' %}" class="btn btn-outline-primary btn-lg rounded-pill px-5 py-3 fw-bold border-2">Explore All Packages <i class="fa-solid fa-arrow-right ms-2"></i></a>
+        </div>
+    </div>
+</section>
+{% endblock %}
