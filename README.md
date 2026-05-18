@@ -209,4 +209,4 @@ Contributions are welcome! If you'd like to improve Journey-Mate:
 This project is open-source, licensed under the **MIT License**.
 
 ---
-*Developed with ❤️ by the Journey-Mate team. Let's make every journey count!*
+*Developed with ❤️ by Heer Limbachiya. Let's make every journey count!*
